@@ -46,52 +46,9 @@ export async function GET() {
             total_votes,
             options: enrichedOptions,
             user_has_voted: poll.votes.some((v) => v.user_id === user.id),
-            user_option_id: poll?.votes[0]?.option_id || null
+            user_option_id: poll.votes.find(v => v.user_id === user.id)?.option_id || null
         };
     });
 
     return NextResponse.json(polls);
-
-    /* const {data, error} = await supabase
-         .from('polls')
-         .select(`
-       *,
-       options(*),
-       votes(*)
-     `)
-         .order('created_at', {ascending: false})
-
-     if (error) {
-         console.error('Poll fetch error:', error)
-         return NextResponse.json([], {status: 500})
-     }
-
-     // Enrich poll data with vote counts and percentage
-     const enrichedPolls: PollWithVotes[] = data.map((poll) => {
-         const total_votes = poll.votes.length
-         const user_has_voted = poll.votes.some(
-             (v: Vote) => v.user_id === user?.id
-         )
-
-         const options = poll.options.map((option: Option) => {
-             const vote_count = poll.votes.filter((v: Vote) => v.option_id === option.id).length
-             const percentage = total_votes > 0
-                 ? Math.round((vote_count / total_votes) * 100)
-                 : 0
-             return {
-                 ...option,
-                 vote_count,
-                 percentage,
-             }
-         })
-
-         return {
-             ...poll,
-             options,
-             total_votes,
-             user_has_voted,
-         }
-     })
-
-     return NextResponse.json(enrichedPolls)*/
 }

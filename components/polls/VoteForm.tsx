@@ -1,21 +1,22 @@
 'use client'
 
-import {useEffect, useState} from 'react'
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
-import {Label} from '@/components/ui/label'
-import {Button} from '@/components/ui/button'
-import {toast} from '@/hooks/use-toast'
-import {supabase} from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { toast } from '@/hooks/use-toast'
+import { supabase } from '@/lib/supabase/client'
 
 interface Option {
     id: string
     text: string
+    vote_count: number
 }
 
 export function VoteForm({
                              pollId,
                              options,
-                             selectedOptionId, // 👈 already-voted option passed as prop
+                             selectedOptionId,
                          }: {
     pollId: string
     options: Option[]
@@ -23,16 +24,16 @@ export function VoteForm({
 }) {
     const [selectedOption, setSelectedOption] = useState<string>('')
     const [isSubmitting, setIsSubmitting] = useState(false)
-    console.log(selectedOptionId)
+    const [totalVotes, setTotalVotes] = useState<number>(0)
 
     const hasVoted = Boolean(selectedOptionId)
 
-    // ✅ Auto-select the voted option when it is available
     useEffect(() => {
-        if (selectedOptionId) {
-            setSelectedOption(selectedOptionId)
-        }
-    }, [selectedOptionId])
+        if (selectedOptionId) setSelectedOption(selectedOptionId)
+
+        const total = options.reduce((acc, option) => acc + (option.vote_count || 0), 0)
+        setTotalVotes(total)
+    }, [options, selectedOptionId])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -40,12 +41,12 @@ export function VoteForm({
         setIsSubmitting(true)
 
         try {
-            const {data: {user}, error: authError} = await supabase.auth.getUser()
+            const { data: { user }, error: authError } = await supabase.auth.getUser()
             if (authError || !user) throw new Error('You must be logged in to vote')
 
-            const {count} = await supabase
+            const { count } = await supabase
                 .from('votes')
-                .select('*', {count: 'exact'})
+                .select('*', { count: 'exact' })
                 .eq('poll_id', pollId)
                 .eq('user_id', user.id)
 
@@ -53,7 +54,7 @@ export function VoteForm({
                 throw new Error('You have already voted on this poll')
             }
 
-            const {error} = await supabase
+            const { error } = await supabase
                 .from('votes')
                 .insert({
                     poll_id: pollId,
@@ -67,6 +68,8 @@ export function VoteForm({
                 title: 'Vote submitted!',
                 description: 'Your vote has been recorded.',
             })
+
+            window.location.reload() // Refresh to reflect new vote count
         } catch (error) {
             if (error instanceof Error) {
                 toast({
@@ -80,6 +83,11 @@ export function VoteForm({
         }
     }
 
+    const getPercentage = (count: number) => {
+        if (totalVotes === 0) return '0%'
+        return ((count / totalVotes) * 100).toFixed(1) + '%'
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <RadioGroup
@@ -88,20 +96,27 @@ export function VoteForm({
                 className="space-y-4"
             >
                 {options.map((option) => (
-                    <div key={option.id} className="flex items-center space-x-2">
-                        <RadioGroupItem
-                            value={option.id}
-                            id={`option-${option.id}`}
-                            disabled={hasVoted}
-                            className={`h-5 w-5 border-2 border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 ${
-                                hasVoted && selectedOptionId === option.id
-                                    ? 'bg-indigo-500'
-                                    : ''
-                            }`}
-                        />
-                        <Label htmlFor={`option-${option.id}`} className="text-sm font-medium">
-                            {option.text}
-                        </Label>
+                    <div
+                        key={option.id}
+                        className="flex justify-between items-center p-2 border rounded-md"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem
+                                value={option.id}
+                                id={`option-${option.id}`}
+                                disabled={hasVoted}
+                                className="h-5 w-5 border-2 border-gray-300 rounded-full"
+                            />
+                            <Label htmlFor={`option-${option.id}`} className="text-sm font-medium">
+                                {option.text}
+                            </Label>
+                        </div>
+                        {hasVoted && (
+                            <span className="text-xs text-muted-foreground text-right w-24">
+                {option.vote_count} votes <br />
+                ({getPercentage(option.vote_count)})
+              </span>
+                        )}
                     </div>
                 ))}
             </RadioGroup>
