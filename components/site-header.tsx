@@ -37,12 +37,6 @@ export function SiteHeader() {
                             >
                                 Dashboard
                             </Link>
-                            <Link
-                                href="/polls"
-                                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/polls' ? '' : 'text-muted-foreground'}`}
-                            >
-                                Browse Polls
-                            </Link>
                             <Button variant="outline" onClick={signOut}>
                                 Sign Out
                             </Button>

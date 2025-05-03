@@ -5,16 +5,12 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
-import {Select, SelectContent, SelectTrigger} from "@radix-ui/react-select";
-import {SelectItem, SelectValue} from "@/components/ui/select";
-import {pollConstants} from "@/components/polls/consants";
 import {supabase} from "@/lib/supabase/client";
 
 export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [category, setCategory] = useState('');
 
     const addOption = () => setOptions([...options, ''])
     const removeOption = (index: number) => {
@@ -88,32 +84,14 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="question">Question</Label>
+                <Label htmlFor="question">Title</Label>
                 <Input
                     id="question"
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     required
-                    placeholder="What's your favorite..."
+                    placeholder="Enter title"
                 />
-            </div>
-            <div className="space-y-2">
-                <Label>Category</Label>
-                <Select
-                    value={category}
-                    onValueChange={setCategory}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a category"/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        {pollConstants.categories.filter(c => c.value).map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
             </div>
             <div className="space-y-4">
                 <Label>Options (minimum 2)</Label>

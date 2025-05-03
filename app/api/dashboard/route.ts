@@ -12,6 +12,20 @@ export async function GET() {
         return NextResponse.json({error: 'Unauthorized'}, {status: 401})
     }
 
+    const {data: allPollsData, error: allPollsError} = await supabase
+        .from('polls')
+        .select(`
+      *,
+      options(*),
+      votes(*)
+    `)
+        .order('created_at', {ascending: false})
+
+    if (allPollsError) {
+        console.error('Poll fetch error:', error)
+        return NextResponse.json([], {status: 500})
+    }
+
     // Fetch user-created polls
     const {data: userPollsData} = await supabase
         .from('polls')
@@ -37,6 +51,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
+        allPolls: allPollsData || [],
         userPolls: userPollsData || [],
         votedPolls: votedPollsData || [],
         userId: user.id,

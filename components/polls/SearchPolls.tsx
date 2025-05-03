@@ -1,9 +1,9 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
-import { useDebouncedCallback } from 'use-debounce'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {Input} from '@/components/ui/input'
+import {Search} from 'lucide-react'
+import {useDebouncedCallback} from 'use-debounce'
 
 export function SearchPolls() {
     const searchParams = useSearchParams()
@@ -21,7 +21,7 @@ export function SearchPolls() {
 
     return (
         <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
             <Input
                 placeholder="Search polls..."
                 className="pl-9"
