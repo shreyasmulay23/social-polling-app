@@ -2,11 +2,11 @@
 
 import {useAuth} from '@/hooks/use-auth'
 import {useRouter} from 'next/navigation'
-import {useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {PollList} from '@/components/polls/poll-list'
 import {Card, CardContent} from '@/components/ui/card'
 import {ClipboardList, MessageSquareWarning} from 'lucide-react'
-import {PollWithVotes} from "@/types";
+import {OptionWithStats, Poll, PollWithVotes, Vote} from "@/types";
 import {supabase} from "@/lib/supabaseClient";
 import {CreatePollButton} from "@/components/polls/create-poll-button";
 
@@ -23,25 +23,22 @@ export default function DashboardPage() {
         }
     }, [user, loading, router])
 
-    const fetchPolls = async () => {
+    const fetchPolls = useCallback(async () => {
         if (!user) return
 
-
-        // Fetch polls created by user
         const {data: userPollsData} = await supabase
             .from('polls')
             .select(`*, options(*), votes(*)`)
             .eq('user_id', user.id)
             .order('created_at', {ascending: false})
 
-        // Fetch polls voted by user
         const {data: votedPollsData} = await supabase
             .from('votes')
             .select(`poll_id`)
             .eq('user_id', user.id)
             .then(async ({data: votes}) => {
                 if (!votes || votes.length === 0) return []
-                const pollIds = votes.map(v => v.poll_id)
+                const pollIds = votes.map((v) => v.poll_id)
                 const {data} = await supabase
                     .from('polls')
                     .select(`*, options(*), votes(*)`)
@@ -52,20 +49,25 @@ export default function DashboardPage() {
         setUserPolls(transformPolls(userPollsData || [], user.id))
         setVotedPolls(transformPolls(votedPollsData || [], user.id))
         setDataLoaded(true)
-    }
+    }, [user])
 
-    const transformPolls = (polls: any[], userId: string) => {
-        return polls.map(poll => {
+    const transformPolls = (polls: (Poll & { votes: Vote[] })[], userId: string): PollWithVotes[] => {
+        return polls.map((poll) => {
             const total_votes = poll.votes.length
-            const user_has_voted = poll.votes.some((v: any) => v.user_id === userId)
+            const user_has_voted = poll.votes.some((v) => v.user_id === userId)
 
-            const options = poll.options.map((option: any) => {
-                const vote_count = poll.votes.filter((v: any) => v.option_id === option.id).length
+            const options: OptionWithStats[] = poll.options.map((option) => {
+                const vote_count = poll.votes.filter((v) => v.option_id === option.id).length
                 const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
                 return {...option, vote_count, percentage}
             })
 
-            return {...poll, options, total_votes, user_has_voted}
+            return {
+                ...poll,
+                total_votes,
+                user_has_voted,
+                options,
+            }
         })
     }
 
@@ -124,7 +126,7 @@ export default function DashboardPage() {
                 </section>
 
                 <section>
-                    <h2 className="text-2xl font-semibold mb-4">Polls You've Voted On</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Polls You&apos;ve Voted On</h2>
                     {dataLoaded ? (
                         votedPolls.length > 0 ? (
                             <PollList polls={votedPolls}/>
