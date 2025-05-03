@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import {Button} from './ui/button'
 import {useAuth} from "@/context/auth-context";
+import Image from 'next/image';
 
 export function SiteHeader() {
     const pathname = usePathname()
@@ -15,10 +16,10 @@ export function SiteHeader() {
         <header className="sticky top-0 z-40 w-full border-b bg-background">
             <div className="container flex h-16 items-center justify-between">
                 <div className="flex items-center space-x-6">
-                    <Link href="/" className="flex items-center space-x-2">
-                        <span className="inline-block font-bold">Pollify</span>
+                    <Link href={'/'}>
+                        <Image src={'/logo.png'} alt="logo" width={100} height={100}
+                               className={'h-[50px] w-auto object-contain'}/>
                     </Link>
-
                 </div>
                 <div className="flex items-center space-x-4">
                     <Link
