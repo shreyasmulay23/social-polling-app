@@ -4,6 +4,8 @@ import {PollWithVotes} from '@/types';
 import {Card} from '@/components/ui/card';
 import {CalendarIcon, CheckCircle2Icon, CircleDashedIcon} from 'lucide-react';
 import {fromNow} from "@/utils/fromNow";
+import {useAuth} from "@/context/auth-context";
+import {useRouter} from "next/navigation";
 
 type PollCardProps = {
     poll: PollWithVotes;
@@ -11,15 +13,22 @@ type PollCardProps = {
 };
 
 export default function PollCard({poll, onClickAction}: PollCardProps) {
+    const {user, isLoading} = useAuth()
+    const router = useRouter()
     return (
         <Card
             onClick={() => onClickAction(poll)}
-            className="p-5 bg-gray-900 backdrop-blur-md rounded-2xl shadow-md border border-white/10 hover:shadow-xl hover:border-indigo-400 transition cursor-pointer"
+            className="p-5 bg-gray-900 backdrop-blur-md rounded-2xl shadow-md border border-white/10 hover:shadow-xl hover:border-indigo-400 transition cursor-pointer relative"
         >
             <div className="flex flex-col gap-3 h-full justify-between">
                 {/* Question */}
                 <h3 className="text-lg font-semibold text-white">{poll.question}</h3>
-
+                {poll.user_id === user?.id && (
+                    <span
+                        className="text-xs font-medium text-white bg-blue-600 px-2.5 py-0.5 rounded-sm absolute right-3 top-3 shadow-sm">
+                        My Poll
+                    </span>
+                )}
                 {/* Stats */}
                 <div className="flex gap-5 items-center justify-between text-sm text-slate-300 mt-2">
                     <div className="flex items-center gap-1">

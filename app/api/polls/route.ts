@@ -46,6 +46,7 @@ export async function GET() {
             total_votes,
             options: enrichedOptions,
             user_has_voted: poll.votes.some((v) => v.user_id === user.id),
+            user_option_id: poll?.votes[0]?.option_id || null
         };
     });
 

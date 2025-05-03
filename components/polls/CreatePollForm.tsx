@@ -1,22 +1,32 @@
 'use client'
 
-import {Button} from '@/components/ui/button'
-import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {Plus, Trash} from 'lucide-react'
-import {useState} from 'react'
-import {supabase} from "@/lib/supabase/client";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Plus, Trash } from 'lucide-react'
+import { useState } from 'react'
+import { supabase } from "@/lib/supabase/client";
 
-export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => void }) {
+export function CreatePollForm({ onSuccess }: { onSuccess: (pollId: string) => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const addOption = () => setOptions([...options, ''])
-    const removeOption = (index: number) => {
-        if (options.length <= 2) return
-        setOptions(options.filter((_, i) => i !== index))
+    // Add an option (limit to 4)
+    const addOption = () => {
+        if (options.length < 4) {
+            setOptions([...options, ''])
+        }
     }
+
+    // Remove an option (limit to minimum of 2)
+    const removeOption = (index: number) => {
+        if (options.length > 2) {
+            setOptions(options.filter((_, i) => i !== index))
+        }
+    }
+
+    // Update the option text
     const updateOption = (index: number, value: string) => {
         const newOptions = [...options]
         newOptions[index] = value
@@ -27,7 +37,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
         e.preventDefault()
         setIsSubmitting(true)
 
-        const {data: {user}, error: authError} = await supabase.auth.getUser()
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
 
         if (authError || !user) {
             console.error('Authentication error:', authError)
@@ -37,9 +47,9 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
 
         try {
             // Create poll
-            const {data: poll, error: pollError} = await supabase
+            const { data: poll, error: pollError } = await supabase
                 .from('polls')
-                .insert({question, user_id: user.id})
+                .insert({ question, user_id: user.id })
                 .select()
                 .single()
 
@@ -58,7 +68,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
                     poll_id: poll.id,
                 }))
 
-            const {error: optionsError} = await supabase
+            const { error: optionsError } = await supabase
                 .from('options')
                 .insert(optionsData)
 
@@ -94,13 +104,13 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
                 />
             </div>
             <div className="space-y-4">
-                <Label>Options (minimum 2)</Label>
+                <Label>Options (minimum 2, maximum 4)</Label>
                 {options.map((option, index) => (
                     <div key={index} className="flex items-center gap-2">
                         <Input
                             value={option}
                             onChange={(e) => updateOption(index, e.target.value)}
-                            required={index < 2}
+                            required={index < 2}  // Ensure that the first 2 options are required
                             placeholder={`Option ${index + 1}`}
                         />
                         {options.length > 2 && (
@@ -110,7 +120,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
                                 size="icon"
                                 onClick={() => removeOption(index)}
                             >
-                                <Trash className="h-4 w-4"/>
+                                <Trash className="h-4 w-4" />
                             </Button>
                         )}
                     </div>
@@ -121,8 +131,9 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
                     variant="outline"
                     className="w-full"
                     onClick={addOption}
+                    disabled={options.length >= 4}  // Disable "Add Option" when there are 4 options
                 >
-                    <Plus className="mr-2 h-4 w-4"/>
+                    <Plus className="mr-2 h-4 w-4" />
                     Add Option
                 </Button>
             </div>

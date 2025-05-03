@@ -35,5 +35,6 @@ export interface PollWithVotes extends Poll {
     votes: Vote[];
     user_has_voted: boolean;
     total_votes: number;
+    user_option_id: string;
     options: OptionWithStats[]; // Now using OptionWithStats
 }
