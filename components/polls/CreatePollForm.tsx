@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { supabase } from "@/lib/supabase/client";
 
-export function CreatePollForm({ onSuccess }: { onSuccess: (pollId: string) => void }) {
+export function CreatePollForm({ onSuccess }: { onSuccess: () => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -37,54 +36,36 @@ export function CreatePollForm({ onSuccess }: { onSuccess: (pollId: string) => v
         e.preventDefault()
         setIsSubmitting(true)
 
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-        if (authError || !user) {
-            console.error('Authentication error:', authError)
-            setIsSubmitting(false)
-            return
-        }
-
         try {
-            // Create poll
-            const { data: poll, error: pollError } = await supabase
-                .from('polls')
-                .insert({ question, user_id: user.id })
-                .select()
-                .single()
+            // Call the API to create poll and options
+            const response = await fetch('/api/poll', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question,
+                    options,
+                }),
+            });
 
-            if (pollError) {
-                console.error('Error creating poll:', pollError)
-                alert(`Failed to create poll: ${pollError.message}`)
-                setIsSubmitting(false)
-                return
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error creating poll:', errorData.message);
+                alert(`Failed to create poll: ${errorData.message}`);
+                setIsSubmitting(false);
+                return;
             }
 
-            // Create options (filter out empty options)
-            const optionsData = options
-                .filter(text => text.trim() !== '')
-                .map(text => ({
-                    text,
-                    poll_id: poll.id,
-                }))
-
-            const { error: optionsError } = await supabase
-                .from('options')
-                .insert(optionsData)
-
-            if (optionsError) {
-                // Attempt to delete the poll if options creation fails
-                await supabase.from('polls').delete().eq('id', poll.id)
-                console.error('Error creating options:', optionsError)
-                alert(`Failed to create poll options: ${optionsError.message}`)
-            } else {
-                onSuccess(poll.id)
-            }
+            const data = await response.json();
+            const pollId = data.pollId;
+            console.log(pollId);
+            onSuccess();
         } catch (err) {
-            console.error('Unexpected error:', err)
-            alert('An unexpected error occurred')
+            console.error('Unexpected error:', err);
+            alert('An unexpected error occurred');
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
