@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { toast } from '@/hooks/use-toast'
-import { supabase } from '@/lib/supabase/client'
+import {useEffect, useState} from 'react'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {Label} from '@/components/ui/label'
+import {Button} from '@/components/ui/button'
+import {toast} from '@/hooks/use-toast'
 
 interface Option {
     id: string
@@ -41,28 +40,20 @@ export function VoteForm({
         setIsSubmitting(true)
 
         try {
-            const { data: { user }, error: authError } = await supabase.auth.getUser()
-            if (authError || !user) throw new Error('You must be logged in to vote')
+            const response = await fetch('/api/vote', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    pollId,
+                    selectedOption,
+                }),
+            })
 
-            const { count } = await supabase
-                .from('votes')
-                .select('*', { count: 'exact' })
-                .eq('poll_id', pollId)
-                .eq('user_id', user.id)
+            const result = await response.json()
 
-            if (count && count > 0) {
-                throw new Error('You have already voted on this poll')
+            if (response.status !== 200) {
+                throw new Error(result.error || 'Vote submission failed')
             }
-
-            const { error } = await supabase
-                .from('votes')
-                .insert({
-                    poll_id: pollId,
-                    option_id: selectedOption,
-                    user_id: user.id,
-                })
-
-            if (error) throw new Error(error.message)
 
             toast({
                 title: 'Vote submitted!',
@@ -113,9 +104,9 @@ export function VoteForm({
                         </div>
                         {hasVoted && (
                             <span className="text-xs text-muted-foreground text-right w-24">
-                {option.vote_count} votes <br />
-                ({getPercentage(option.vote_count)})
-              </span>
+                                {option.vote_count} votes <br/>
+                                ({getPercentage(option.vote_count)})
+                            </span>
                         )}
                     </div>
                 ))}
