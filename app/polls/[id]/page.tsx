@@ -2,7 +2,12 @@ import {PollCard} from '@/components/polls/poll-card'
 import {notFound} from 'next/navigation'
 import {supabase} from '@/lib/supabaseClient'
 
-export default async function PollPage({params}: { params: { id: string } }) {
+interface PageProps {
+    params: {
+        id: string
+    }
+}
+export default async function PollPage({ params }: PageProps) {
     const {data: {user}} = await supabase.auth.getUser()
 
     const {data: pollData} = await supabase
