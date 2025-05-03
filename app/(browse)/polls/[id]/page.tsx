@@ -1,7 +1,7 @@
 import {PollCard} from '@/components/polls/poll-card'
 import {notFound} from 'next/navigation'
-import {supabase} from '@/lib/supabaseClient'
 import {Option, Vote} from "@/types";
+import {supabase} from "@/lib/supabase/client";
 
 interface PageProps {
     params: Promise<{ id: string }>;

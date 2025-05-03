@@ -1,18 +1,20 @@
 'use client'
 
-import {useAuth} from '@/hooks/use-auth'
+import {useEffect, useState} from 'react'
 import {useRouter} from 'next/navigation'
-import {useCallback, useEffect, useState} from 'react'
+import {useAuth} from '@/hooks/use-auth'
+
 import {PollList} from '@/components/polls/poll-list'
+import {CreatePollButton} from '@/components/polls/create-poll-button'
 import {Card, CardContent} from '@/components/ui/card'
 import {ClipboardList, MessageSquareWarning} from 'lucide-react'
-import {OptionWithStats, Poll, PollWithVotes, Vote} from "@/types";
-import {supabase} from "@/lib/supabaseClient";
-import {CreatePollButton} from "@/components/polls/create-poll-button";
+
+import {OptionWithStats, Poll, PollWithVotes, Vote} from '@/types'
 
 export default function DashboardPage() {
     const {user, loading} = useAuth()
     const router = useRouter()
+
     const [userPolls, setUserPolls] = useState<PollWithVotes[]>([])
     const [votedPolls, setVotedPolls] = useState<PollWithVotes[]>([])
     const [dataLoaded, setDataLoaded] = useState(false)
@@ -23,42 +25,32 @@ export default function DashboardPage() {
         }
     }, [user, loading, router])
 
-    const fetchPolls = useCallback(async () => {
+    useEffect(() => {
         if (!user) return
 
-        const {data: userPollsData} = await supabase
-            .from('polls')
-            .select(`*, options(*), votes(*)`)
-            .eq('user_id', user.id)
-            .order('created_at', {ascending: false})
+        const fetchDashboardData = async () => {
+            const res = await fetch('/api/dashboard')
+            if (!res.ok) return console.error('Failed to fetch dashboard data')
 
-        const {data: votes} = await supabase
-            .from('votes')
-            .select('poll_id')
-            .eq('user_id', user.id)
+            const {userPolls, votedPolls, userId} = await res.json()
 
-        let votedPollsData: (Poll & { votes: Vote[] })[] = []
-        if (votes && votes.length > 0) {
-            const pollIds = votes.map((v) => v.poll_id)
-            const {data: pollsData} = await supabase
-                .from('polls')
-                .select('*, options(*), votes(*)')
-                .in('id', pollIds)
-
-            votedPollsData = pollsData || []
+            setUserPolls(transformPolls(userPolls, userId))
+            setVotedPolls(transformPolls(votedPolls, userId))
+            setDataLoaded(true)
         }
 
-        setUserPolls(transformPolls(userPollsData || [], user.id))
-        setVotedPolls(transformPolls(votedPollsData || [], user.id))
-        setDataLoaded(true)
+        fetchDashboardData()
     }, [user])
 
-    const transformPolls = (polls: (Poll & { votes: Vote[] })[], userId: string): PollWithVotes[] => {
+    const transformPolls = (
+        polls: (Poll & { votes: Vote[]; options: OptionWithStats[] })[],
+        userId: string
+    ): PollWithVotes[] => {
         return polls.map((poll) => {
             const total_votes = poll.votes.length
             const user_has_voted = poll.votes.some((v) => v.user_id === userId)
 
-            const options: OptionWithStats[] = poll.options.map((option) => {
+            const options = poll.options.map((option) => {
                 const vote_count = poll.votes.filter((v) => v.option_id === option.id).length
                 const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
                 return {...option, vote_count, percentage}
@@ -73,19 +65,6 @@ export default function DashboardPage() {
         })
     }
 
-    useEffect(() => {
-        fetchPolls()
-        const channel = supabase
-            .channel('dashboard_changes')
-            .on('postgres_changes', {event: '*', schema: 'public', table: 'polls'}, fetchPolls)
-            .on('postgres_changes', {event: '*', schema: 'public', table: 'votes'}, fetchPolls)
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(channel)
-        }
-    }, [user])
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -94,32 +73,26 @@ export default function DashboardPage() {
         )
     }
 
-    if (!user) {
-        return null // Will redirect via useEffect
-    }
+    if (!user) return null
 
     return (
         <div className="container mx-auto py-8">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">Welcome, {user.email}</h1>
-                <div className="flex gap-4">
-                    <CreatePollButton/>
-                </div>
+                <CreatePollButton/>
             </div>
 
             <div className="grid gap-8">
-
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Your Recent Polls</h2>
                     {dataLoaded ? (
                         userPolls.length > 0 ? (
-                            <PollList/>
+                            <PollList polls={userPolls}/>
                         ) : (
                             <EmptyState
                                 icon={<ClipboardList className="h-12 w-12"/>}
                                 title="No polls created yet"
                                 description="Get started by creating your first poll"
-                                action={null}
                             />
                         )
                     ) : (
@@ -131,7 +104,7 @@ export default function DashboardPage() {
                     <h2 className="text-2xl font-semibold mb-4">Polls You&apos;ve Voted On</h2>
                     {dataLoaded ? (
                         votedPolls.length > 0 ? (
-                            <PollList/>
+                            <PollList polls={votedPolls}/>
                         ) : (
                             <EmptyState
                                 icon={<MessageSquareWarning className="h-12 w-12"/>}
@@ -148,11 +121,15 @@ export default function DashboardPage() {
     )
 }
 
-// Empty State Component
-function EmptyState({icon, title, description, action}: {
-    icon: React.ReactNode,
-    title: string,
-    description: string,
+function EmptyState({
+                        icon,
+                        title,
+                        description,
+                        action,
+                    }: {
+    icon: React.ReactNode
+    title: string
+    description: string
     action?: React.ReactNode
 }) {
     return (
@@ -167,7 +144,6 @@ function EmptyState({icon, title, description, action}: {
     )
 }
 
-// Skeleton Loader
 function PollListSkeleton() {
     return (
         <div className="space-y-4">

@@ -5,8 +5,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import {supabase} from "@/lib/supabaseClient";
 import {toast} from "@/hooks/use-toast";
+import {supabase} from "@/lib/supabase/client";
 
 export function VoteForm({ pollId, options }: { pollId: string, options: Array<{ id: string, text: string }> }) {
     const [selectedOption, setSelectedOption] = useState('')

@@ -5,10 +5,10 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
-import {supabase} from "@/lib/supabaseClient";
 import {Select, SelectContent, SelectTrigger} from "@radix-ui/react-select";
 import {SelectItem, SelectValue} from "@/components/ui/select";
 import {pollConstants} from "@/components/polls/consants";
+import {supabase} from "@/lib/supabase/client";
 
 export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => void }) {
     const [question, setQuestion] = useState('')

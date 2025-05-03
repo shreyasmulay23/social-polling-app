@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
-import {supabase} from "@/lib/supabaseClient";
+import {createServerSupabaseClient} from "@/lib/supabase/server";
+
 
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json()
+        const supabase = createServerSupabaseClient()
 
         // Basic validation
         if (!email || !password) {

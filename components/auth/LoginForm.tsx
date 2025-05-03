@@ -5,9 +5,7 @@ import {useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import Link from 'next/link'
-import {supabase} from '@/lib/supabaseClient'
-
-// import {supabase} from "@/lib/supabase";
+import { supabase } from '@/lib/supabase/client'
 
 export function LoginForm() {
     const router = useRouter()
