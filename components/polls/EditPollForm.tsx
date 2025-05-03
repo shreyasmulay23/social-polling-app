@@ -8,7 +8,7 @@ import {Button} from '@/components/ui/button'
 import {Pencil, Plus, Trash} from 'lucide-react'
 import {supabase} from '@/lib/supabase/client'
 
-export function EditPollForm({pollId, onSuccess}: { pollId: string, onSuccess?: () => void }) {
+export function EditPollForm({pollId}: { pollId: string }) {
     const [open, setOpen] = useState(false)
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState<string[]>([])

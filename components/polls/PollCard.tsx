@@ -5,7 +5,6 @@ import {Card} from '@/components/ui/card';
 import {CalendarIcon, CheckCircle2Icon, CircleDashedIcon} from 'lucide-react';
 import {fromNow} from "@/utils/fromNow";
 import {useAuth} from "@/context/auth-context";
-import {useRouter} from "next/navigation";
 
 type PollCardProps = {
     poll: PollWithVotes;
@@ -13,8 +12,7 @@ type PollCardProps = {
 };
 
 export default function PollCard({poll, onClickAction}: PollCardProps) {
-    const {user, isLoading} = useAuth()
-    const router = useRouter()
+    const {user} = useAuth()
     return (
         <Card
             onClick={() => onClickAction(poll)}
