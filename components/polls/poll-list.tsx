@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react'
 import {PollCard} from './poll-card'
 import {Skeleton} from '@/components/ui/skeleton'
 import {supabase} from '@/lib/supabaseClient'
-import {PollWithVotes} from "@/types";
+import {PollWithVotes, Vote, Option} from "@/types";
 import {Card, CardContent} from "@/components/ui/card";
 
 export function PollList() {
@@ -34,10 +34,10 @@ export function PollList() {
             // Transform data
             const enrichedPolls = data.map((poll) => {
                 const total_votes = poll.votes.length
-                const user_has_voted = poll.votes.some(v => v.user_id === user.id)
+                const user_has_voted = poll.votes.some((v: Vote) => v.user_id === user.id)
 
-                const options = poll.options.map(option => {
-                    const vote_count = poll.votes.filter(v => v.option_id === option.id).length
+                const options = poll.options.map((option: Option) => {
+                    const vote_count = poll.votes.filter((v: Vote) => v.option_id === option.id).length
                     const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
                     return {...option, vote_count, percentage}
                 })

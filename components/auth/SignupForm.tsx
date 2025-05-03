@@ -36,7 +36,11 @@ export function SignupForm() {
             // Redirect to dashboard immediately after successful signup
             router.push('/dashboard')
         } catch (err) {
-            setError(err.message)
+            if (err instanceof Error) {
+                setError(err.message)
+            } else {
+                setError('Something went wrong.')
+            }
         } finally {
             setIsLoading(false)
         }

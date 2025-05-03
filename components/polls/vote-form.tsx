@@ -56,11 +56,13 @@ export function VoteForm({ pollId, options }: { pollId: string, options: Array<{
 
             router.refresh()
         } catch (error) {
-            toast({
-                title: 'Vote failed',
-                description: error.message,
-                variant: 'destructive'
-            })
+            if (error instanceof Error) {
+                toast({
+                    title: 'Vote failed',
+                    description: error.message,
+                    variant: 'destructive'
+                })
+            }
         } finally {
             setIsSubmitting(false)
         }

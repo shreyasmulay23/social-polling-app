@@ -10,7 +10,7 @@ export function SearchPolls() {
     const router = useRouter()
 
     const handleSearch = useDebouncedCallback((term: string) => {
-        const params = new URLSearchParams(searchParams)
+        const params = new URLSearchParams(searchParams ?? '')
         if (term) {
             params.set('query', term)
         } else {
@@ -25,7 +25,7 @@ export function SearchPolls() {
             <Input
                 placeholder="Search polls..."
                 className="pl-9"
-                defaultValue={searchParams.get('query')?.toString()}
+                defaultValue={searchParams ? searchParams.get('query')?.toString() : ''}
                 onChange={(e) => handleSearch(e.target.value)}
             />
         </div>

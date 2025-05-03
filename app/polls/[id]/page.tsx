@@ -1,13 +1,14 @@
 import {PollCard} from '@/components/polls/poll-card'
 import {notFound} from 'next/navigation'
 import {supabase} from '@/lib/supabaseClient'
+import {Option, Vote} from "@/types";
 
 interface PageProps {
-    params: {
-        id: string
-    }
+    params: Promise<{ id: string }>;
 }
-export default async function PollPage({ params }: PageProps) {
+
+export default async function PollPage({params}: PageProps) {
+    const {id} = await params;
     const {data: {user}} = await supabase.auth.getUser()
 
     const {data: pollData} = await supabase
@@ -17,16 +18,16 @@ export default async function PollPage({ params }: PageProps) {
       options(*),
       votes(*)
     `)
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
     if (!pollData) return notFound()
 
     const total_votes = pollData.votes.length
-    const user_has_voted = user ? pollData.votes.some(v => v.user_id === user.id) : false
+    const user_has_voted = user ? pollData.votes.some((v: Vote) => v.user_id === user.id) : false
 
-    const options = pollData.options.map(option => {
-        const vote_count = pollData.votes.filter(v => v.option_id === option.id).length
+    const options = pollData.options.map((option: Option) => {
+        const vote_count = pollData.votes.filter((v: Vote) => v.option_id === option.id).length
         const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
         return {...option, vote_count, percentage}
     })

@@ -32,19 +32,21 @@ export default function DashboardPage() {
             .eq('user_id', user.id)
             .order('created_at', {ascending: false})
 
-        const {data: votedPollsData} = await supabase
+        const {data: votes} = await supabase
             .from('votes')
-            .select(`poll_id`)
+            .select('poll_id')
             .eq('user_id', user.id)
-            .then(async ({data: votes}) => {
-                if (!votes || votes.length === 0) return []
-                const pollIds = votes.map((v) => v.poll_id)
-                const {data} = await supabase
-                    .from('polls')
-                    .select(`*, options(*), votes(*)`)
-                    .in('id', pollIds)
-                return data || []
-            })
+
+        let votedPollsData: (Poll & { votes: Vote[] })[] = []
+        if (votes && votes.length > 0) {
+            const pollIds = votes.map((v) => v.poll_id)
+            const {data: pollsData} = await supabase
+                .from('polls')
+                .select('*, options(*), votes(*)')
+                .in('id', pollIds)
+
+            votedPollsData = pollsData || []
+        }
 
         setUserPolls(transformPolls(userPollsData || [], user.id))
         setVotedPolls(transformPolls(votedPollsData || [], user.id))
@@ -111,7 +113,7 @@ export default function DashboardPage() {
                     <h2 className="text-2xl font-semibold mb-4">Your Recent Polls</h2>
                     {dataLoaded ? (
                         userPolls.length > 0 ? (
-                            <PollList polls={userPolls}/>
+                            <PollList/>
                         ) : (
                             <EmptyState
                                 icon={<ClipboardList className="h-12 w-12"/>}
@@ -129,7 +131,7 @@ export default function DashboardPage() {
                     <h2 className="text-2xl font-semibold mb-4">Polls You&apos;ve Voted On</h2>
                     {dataLoaded ? (
                         votedPolls.length > 0 ? (
-                            <PollList polls={votedPolls}/>
+                            <PollList/>
                         ) : (
                             <EmptyState
                                 icon={<MessageSquareWarning className="h-12 w-12"/>}
