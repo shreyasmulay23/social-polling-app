@@ -1,21 +1,17 @@
 'use client'
 
-import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import {useAuth} from '@/hooks/use-auth'
+import {useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
-import { PollList } from '@/components/polls/poll-list'
-/*
-import { CreatePollButton } from '@/components/polls/create-poll-button'
-*/
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MessageSquareWarning, ClipboardList } from 'lucide-react'
+import {PollList} from '@/components/polls/poll-list'
+import {Card, CardContent} from '@/components/ui/card'
+import {ClipboardList, MessageSquareWarning} from 'lucide-react'
 import {PollWithVotes} from "@/types";
 import {supabase} from "@/lib/supabaseClient";
 import {CreatePollButton} from "@/components/polls/create-poll-button";
 
 export default function DashboardPage() {
-    const { user, loading } = useAuth()
+    const {user, loading} = useAuth()
     const router = useRouter()
     const [userPolls, setUserPolls] = useState<PollWithVotes[]>([])
     const [votedPolls, setVotedPolls] = useState<PollWithVotes[]>([])
@@ -32,21 +28,21 @@ export default function DashboardPage() {
 
 
         // Fetch polls created by user
-        const { data: userPollsData } = await supabase
+        const {data: userPollsData} = await supabase
             .from('polls')
             .select(`*, options(*), votes(*)`)
             .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
+            .order('created_at', {ascending: false})
 
         // Fetch polls voted by user
-        const { data: votedPollsData } = await supabase
+        const {data: votedPollsData} = await supabase
             .from('votes')
             .select(`poll_id`)
             .eq('user_id', user.id)
-            .then(async ({ data: votes }) => {
+            .then(async ({data: votes}) => {
                 if (!votes || votes.length === 0) return []
                 const pollIds = votes.map(v => v.poll_id)
-                const { data } = await supabase
+                const {data} = await supabase
                     .from('polls')
                     .select(`*, options(*), votes(*)`)
                     .in('id', pollIds)
@@ -66,10 +62,10 @@ export default function DashboardPage() {
             const options = poll.options.map((option: any) => {
                 const vote_count = poll.votes.filter((v: any) => v.option_id === option.id).length
                 const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
-                return { ...option, vote_count, percentage }
+                return {...option, vote_count, percentage}
             })
 
-            return { ...poll, options, total_votes, user_has_voted }
+            return {...poll, options, total_votes, user_has_voted}
         })
     }
 
@@ -77,8 +73,8 @@ export default function DashboardPage() {
         fetchPolls()
         const channel = supabase
             .channel('dashboard_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'polls' }, fetchPolls)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'votes' }, fetchPolls)
+            .on('postgres_changes', {event: '*', schema: 'public', table: 'polls'}, fetchPolls)
+            .on('postgres_changes', {event: '*', schema: 'public', table: 'votes'}, fetchPolls)
             .subscribe()
 
         return () => {
@@ -103,7 +99,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">Welcome, {user.email}</h1>
                 <div className="flex gap-4">
-                    <CreatePollButton />
+                    <CreatePollButton/>
                 </div>
             </div>
 
@@ -113,17 +109,17 @@ export default function DashboardPage() {
                     <h2 className="text-2xl font-semibold mb-4">Your Recent Polls</h2>
                     {dataLoaded ? (
                         userPolls.length > 0 ? (
-                            <PollList polls={userPolls} />
+                            <PollList polls={userPolls}/>
                         ) : (
                             <EmptyState
-                                icon={<ClipboardList className="h-12 w-12" />}
+                                icon={<ClipboardList className="h-12 w-12"/>}
                                 title="No polls created yet"
                                 description="Get started by creating your first poll"
                                 action={null}
                             />
                         )
                     ) : (
-                        <PollListSkeleton />
+                        <PollListSkeleton/>
                     )}
                 </section>
 
@@ -131,16 +127,16 @@ export default function DashboardPage() {
                     <h2 className="text-2xl font-semibold mb-4">Polls You've Voted On</h2>
                     {dataLoaded ? (
                         votedPolls.length > 0 ? (
-                            <PollList polls={votedPolls} />
+                            <PollList polls={votedPolls}/>
                         ) : (
                             <EmptyState
-                                icon={<MessageSquareWarning className="h-12 w-12" />}
+                                icon={<MessageSquareWarning className="h-12 w-12"/>}
                                 title="No votes yet"
                                 description="Vote on polls to see them appear here"
                             />
                         )
                     ) : (
-                        <PollListSkeleton />
+                        <PollListSkeleton/>
                     )}
                 </section>
             </div>
@@ -149,7 +145,7 @@ export default function DashboardPage() {
 }
 
 // Empty State Component
-function EmptyState({ icon, title, description, action }: {
+function EmptyState({icon, title, description, action}: {
     icon: React.ReactNode,
     title: string,
     description: string,

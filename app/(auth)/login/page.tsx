@@ -16,7 +16,7 @@ export default function LoginPage() {
             <LoginForm />
             <div className="flex items-center justify-center gap-2">
         <span className="text-sm text-muted-foreground">
-          Don't have an account?
+          Don&apos;t have an account?
         </span>
                 <Button variant="link" className="px-0" asChild>
                     <Link href="/signup">Sign up</Link>

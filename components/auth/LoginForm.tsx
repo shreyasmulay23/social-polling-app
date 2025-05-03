@@ -23,23 +23,10 @@ export function LoginForm() {
         setError(null)
 
         try {
-            const {data, error} = await supabase.auth.signInWithPassword({
+            await supabase.auth.signInWithPassword({
                 email,
                 password,
             })
-            /*const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({email, password}),
-            })*/
-
-            // const data = await response.json()
-
-            /*if (!response.ok) {
-                throw new Error(data.error || 'Login failed')
-            }*/
             // ✅ Double-check session with getUser()
             const {data: userData, error: userError} = await supabase.auth.getUser()
 
@@ -48,9 +35,7 @@ export function LoginForm() {
                 return
             }
 
-            // Successful login - redirect to dashboard
-            router.refresh() // Ensure client state is updated
-            // Add slight delay to ensure session is fully set
+            router.refresh()
             setTimeout(() => {
                 router.push('/dashboard');
             }, 100);

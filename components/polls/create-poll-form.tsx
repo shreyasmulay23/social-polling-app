@@ -97,7 +97,6 @@ export function CreatePollForm({onSuccess}: { onSuccess: (pollId: string) => voi
                     placeholder="What's your favorite..."
                 />
             </div>
-            // Add to your create poll form
             <div className="space-y-2">
                 <Label>Category</Label>
                 <Select

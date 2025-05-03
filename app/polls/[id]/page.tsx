@@ -1,12 +1,11 @@
-import { createClient } from '@/lib/supabase'
-import { PollCard } from '@/components/polls/poll-card'
-import { notFound } from 'next/navigation'
-import {supabase} from "@/lib/supabaseClient";
+import {PollCard} from '@/components/polls/poll-card'
+import {notFound} from 'next/navigation'
+import {supabase} from '@/lib/supabaseClient'
 
-export default async function PollPage({ params }: { params: { id: string } }) {
-    const { data: { user } } = await supabase.auth.getUser()
+export default async function PollPage({params}: { params: { id: string } }) {
+    const {data: {user}} = await supabase.auth.getUser()
 
-    const { data: pollData } = await supabase
+    const {data: pollData} = await supabase
         .from('polls')
         .select(`
       *,
@@ -24,7 +23,7 @@ export default async function PollPage({ params }: { params: { id: string } }) {
     const options = pollData.options.map(option => {
         const vote_count = pollData.votes.filter(v => v.option_id === option.id).length
         const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
-        return { ...option, vote_count, percentage }
+        return {...option, vote_count, percentage}
     })
 
     const poll = {
@@ -36,7 +35,7 @@ export default async function PollPage({ params }: { params: { id: string } }) {
 
     return (
         <div className="container py-8">
-            <PollCard poll={poll} />
+            <PollCard poll={poll}/>
         </div>
     )
 }
