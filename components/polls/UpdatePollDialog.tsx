@@ -6,17 +6,21 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Pencil, Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
-import {supabase} from '@/lib/supabase/client'
 import type {PollWithVotes} from '@/types'
+import {useToast} from "@/hooks/use-toast";
 
-export function UpdatePollDialog({poll, onSuccess}: {
+export function UpdatePollDialog({
+                                     poll,
+                                     onSuccess,
+                                 }: {
     poll: PollWithVotes
     onSuccess: () => void
 }) {
     const [question, setQuestion] = useState(poll.question)
     const [options, setOptions] = useState(poll.options.map(o => o.text))
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const hasVotes = poll.total_votes > 0
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { toast } = useToast()
 
     const updateOption = (index: number, value: string) => {
         const newOptions = [...options]
@@ -37,60 +41,46 @@ export function UpdatePollDialog({poll, onSuccess}: {
         e.preventDefault()
         setIsSubmitting(true)
 
-        // Update the poll question
-        const {error: updatePollError} = await supabase
-            .from('polls')
-            .update({question})
-            .eq('id', poll.id)
+        try {
+            const res = await fetch(`/api/poll/${poll.id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    question,
+                    options,
+                    originalOptions: poll.options,
+                    hasVotes
+                }),
+            })
 
-        if (updatePollError) {
-            alert('Failed to update poll title')
-            console.error(updatePollError)
+            const data = await res.json()
+
+            if (!res.ok) {
+                alert(data.error || 'Failed to update poll')
+                console.error(data)
+                return
+            }
+            toast({
+                title: "Success 🎉",
+                description: "Poll updated successfully.",
+            })
+            onSuccess()
+        } catch (err) {
+            console.error('Unexpected error updating poll:', err)
+            alert('Something went wrong!')
+        } finally {
             setIsSubmitting(false)
-            return
         }
-
-        // Update options text
-        const originalOptions = poll.options
-        for (let i = 0; i < originalOptions.length; i++) {
-            const original = originalOptions[i]
-            const updatedText = options[i]
-
-            if (original.text !== updatedText) {
-                await supabase
-                    .from('options')
-                    .update({text: updatedText})
-                    .eq('id', original.id)
-            }
-        }
-
-        // If no votes exist, allow add/delete
-        if (!hasVotes) {
-            // Delete extra removed options
-            const removed = originalOptions.slice(options.length)
-            for (const ro of removed) {
-                await supabase.from('options').delete().eq('id', ro.id)
-            }
-
-            // Add new options
-            const newOptions = options.slice(originalOptions.length).filter(o => o.trim() !== '')
-            if (newOptions.length > 0) {
-                await supabase.from('options').insert(
-                    newOptions.map(text => ({text, poll_id: poll.id}))
-                )
-            }
-        }
-
-        onSuccess()
-        setIsSubmitting(false)
     }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button className={'z-20'} size="icon" onClick={(e) => {
-                    e.stopPropagation();
-                }}>
+                <Button
+                    className="w-4 h-4 text-white cursor-pointer"
+                    size="icon"
+                    onClick={e => e.stopPropagation()}
+                >
                     <Pencil className="h-4 w-4"/>
                 </Button>
             </DialogTrigger>
@@ -101,7 +91,7 @@ export function UpdatePollDialog({poll, onSuccess}: {
                         <Input
                             id="question"
                             value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
+                            onChange={e => setQuestion(e.target.value)}
                             required
                         />
                     </div>
@@ -112,7 +102,7 @@ export function UpdatePollDialog({poll, onSuccess}: {
                             <div key={index} className="flex items-center gap-2">
                                 <Input
                                     value={option}
-                                    onChange={(e) => updateOption(index, e.target.value)}
+                                    onChange={e => updateOption(index, e.target.value)}
                                     required
                                 />
                                 {!hasVotes && options.length > 2 && (

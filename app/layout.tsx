@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import {SiteHeader} from "@/components/site-header";
 import {SiteFooter} from "@/components/site-footer";
 import {AuthProvider} from "@/context/auth-context";
+import {Toaster} from "@/components/ui/toaster"
 
 const spaceGrotesk = Space_Grotesk({
     subsets: ["latin"],
@@ -45,7 +46,10 @@ export default function RootLayout({
         <AuthProvider>
             <div className="relative flex min-h-screen flex-col">
                 <SiteHeader/>
-                <main className="flex-1">{children}</main>
+                <main className="flex-1">
+                    {children}
+                    <Toaster/>
+                </main>
                 <SiteFooter/>
             </div>
         </AuthProvider>
