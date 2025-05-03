@@ -6,14 +6,17 @@ import {useAuth} from '@/hooks/use-auth'
 import {CreatePollButton} from '@/components/polls/CreatePollButton'
 import {Card, CardContent} from '@/components/ui/card'
 import {ClipboardList} from 'lucide-react'
-import {PollWithVotes} from "@/types";
+import {PollWithVotes, Vote} from "@/types";
 import PollCard from "@/components/polls/PollCard";
 import PollDialog from "@/components/polls/PollDialog";
+import {supabase} from "@/lib/supabase/client";
+import { RealtimeChannel } from '@supabase/supabase-js'
+
 
 export default function DashboardPage() {
     const {user, loading} = useAuth()
     const router = useRouter()
-    const [polls, setPolls] = useState([]);
+    const [polls, setPolls] = useState<PollWithVotes[]>([]);
     const [dataLoaded, setDataLoaded] = useState(false)
     const [selectedPoll, setSelectedPoll] = useState<PollWithVotes | null>(null);
 
@@ -35,6 +38,62 @@ export default function DashboardPage() {
 
         fetchAllPolls()
     }, [user])
+
+    useEffect(() => {
+        if (!user) return;
+
+        let channel: RealtimeChannel;
+
+        const setupSubscription = async () => {
+            channel = supabase
+                .channel('poll_votes')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'votes'
+                    },
+                    (payload) => {
+                        updatePollsWithNewVote(payload.new as Vote);
+                    }
+                )
+                .subscribe()
+        };
+
+        setupSubscription();
+
+        return () => {
+            if (channel) {
+                supabase.removeChannel(channel)
+            }
+        };
+    }, [user]);
+
+    const updatePollsWithNewVote = (newVote: Vote) => {
+        console.log('Updated.....')
+        setPolls(prevPolls =>
+            prevPolls.map(poll => {
+                if (poll.id !== newVote.poll_id) return poll;
+
+                return {
+                    ...poll,
+                    votes: [...poll.votes, newVote],
+                    total_votes: poll.total_votes + 1,
+                    options: poll.options.map(option => {
+                        if (option.id !== newVote.option_id) return option;
+                        return {
+                            ...option,
+                            vote_count: option.vote_count + 1,
+                            percentage: Math.round(
+                                ((option.vote_count + 1) / (poll.total_votes + 1)) * 100
+                            )
+                        };
+                    })
+                };
+            })
+        );
+    };
 
     /*const transformPolls = (
         polls: (Poll & { votes: Vote[]; options: OptionWithStats[] })[],
