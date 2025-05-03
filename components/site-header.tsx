@@ -18,16 +18,18 @@ export function SiteHeader() {
                     <Link href="/" className="flex items-center space-x-2">
                         <span className="inline-block font-bold">Pollify</span>
                     </Link>
+
                 </div>
                 <div className="flex items-center space-x-4">
+                    <Link
+                        href="/"
+                        className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/' ? '' : 'text-muted-foreground'}`}
+                    >
+                        Home
+                    </Link>
                     {user ? (
                         <>
-                            <Link
-                                href="/"
-                                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/' ? '' : 'text-muted-foreground'}`}
-                            >
-                                Home
-                            </Link>
+
                             <Link
                                 href="/dashboard"
                                 className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/dashboard' ? '' : 'text-muted-foreground'}`}

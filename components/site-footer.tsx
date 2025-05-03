@@ -9,7 +9,7 @@ export function SiteFooter() {
                     <p className="text-center text-sm leading-loose md:text-left">
                         Made with 💗 from &nbsp;
                         <Link
-                            href="https://github.com/shreyasmulay23"
+                            href="https://shreyas-mulay.vercel.app/"
                             target="_blank"
                             rel="noreferrer"
                             className="font-medium underline underline-offset-4"
@@ -30,19 +30,15 @@ export function SiteFooter() {
                 </div>
                 <div className="flex items-center space-x-4">
                     <Link
-                        href="/terms"
+                        href="https://www.linkedin.com/in/shreyasmulay23"
+                        target="_blank"
+                        rel="noreferrer"
                         className="text-sm text-muted-foreground hover:text-primary"
                     >
-                        Terms
+                        LinkedIn
                     </Link>
                     <Link
-                        href="/privacy"
-                        className="text-sm text-muted-foreground hover:text-primary"
-                    >
-                        Privacy
-                    </Link>
-                    <Link
-                        href="https://github.com/yourusername/pollify"
+                        href="https://github.com/shreyasmulay23"
                         target="_blank"
                         rel="noreferrer"
                         className="text-sm text-muted-foreground hover:text-primary"
