@@ -5,7 +5,6 @@ import HeroSection from "@/components/hero";
 import {Card, CardContent} from '@/components/ui/card';
 import Link from 'next/link';
 import {Button} from "@/components/ui/button";
-import Image from 'next/image';
 import {useAuth} from "@/context/auth-context";
 
 
@@ -72,7 +71,7 @@ export default function Home() {
                             <Card key={index} className={'p-6'}>
                                 <CardContent className={' pt-4'}>
                                     <div className={'flex items-center mb-4'}>
-                                        <Image src={item.image} alt={item.name} width={40} height={40}
+                                        <img src={item.image} alt={item.name} width={40} height={40}
                                                className={'rounded-full'}/>
                                         <div className={'ml-4'}>
                                             <div className={'font-semibold'}>{item.name}</div>
