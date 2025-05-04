@@ -1,6 +1,6 @@
 
-const BASE_URL = 'http://localhost:3001/api'
-// const BASE_URL = 'https://social-polling-app-backend.onrender.com/api'
+// const BASE_URL = 'http://localhost:3001/api'
+const BASE_URL = 'https://social-polling-app-backend.onrender.com/api'
 
 export const API_ROUTES = {
     AUTH: {
