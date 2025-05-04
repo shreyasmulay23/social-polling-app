@@ -20,7 +20,7 @@ Create, vote, and engage with real-time polls. Built with **Next.js**, **Supabas
 
 | Home                            | Poll                              | Results                              |
 |---------------------------------|-----------------------------------|--------------------------------------|
-| ![Home](./screenshots/home.jpg) | ![Poll](./screenshots/poll_1.jpg) | ![Results](./screenshots/poll_3.jpg) |
+| ![home.jpg](public/screenshots/home.jpg) | ![poll_1.jpg](public/screenshots/poll_1.jpg) | ![poll_3.jpg](public/screenshots/poll_3.jpg) |
 
 ---
 
