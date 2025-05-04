@@ -1,14 +1,15 @@
 'use client'
 
 import {useState} from 'react'
-import {useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase/client'
+import axios from "axios";
+import Cookies from 'js-cookie'
+import {supabase} from "@/lib/supabase/client";
+import {API_ROUTES} from "@/utils/apiRoutes";
+import {toast} from "@/hooks/use-toast";
 
 export function LoginForm() {
-    const router = useRouter()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -18,31 +19,34 @@ export function LoginForm() {
         e.preventDefault()
         setIsLoading(true)
         setError(null)
-
         try {
-            await supabase.auth.signInWithPassword({
-                email,
-                password,
-            })
-            // ✅ Double-check session with getUser()
-            const {data: userData, error: userError} = await supabase.auth.getUser()
-
-            if (userError || !userData.user) {
-                setError('Login failed. No active user session.')
-                return
+            const {data} = await axios.post(API_ROUTES.AUTH.LOGIN, {email, password})
+            const access_token = data?.session?.access_token
+            const refresh_token = data?.session?.refresh_token
+            if (access_token && refresh_token) {
+                Cookies.set('supabase_access_token', data.session.access_token, {secure: true, sameSite: 'Strict'})
+                Cookies.set('supabase_refresh_token', data.session.refresh_token, {secure: true, sameSite: 'Strict'})
+                await supabase.auth.setSession({
+                    access_token,
+                    refresh_token
+                });
+                toast({
+                    title: 'Logged In successfully',
+                    description: 'Successfully logged in.',
+                })
             }
-
-            router.refresh()
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 100);
-
         } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message)
+            if (axios.isAxiosError(err)) {
+                const message = err.response?.data?.error?.message || 'Something went wrong';
+                setError(message);
             } else {
                 setError('Something went wrong.')
             }
+            toast({
+                variant: 'destructive',
+                title: 'Oops! Something went wrong',
+                description: 'Please try again later',
+            })
         } finally {
             setIsLoading(false)
         }
@@ -80,11 +84,6 @@ export function LoginForm() {
             {error && (
                 <p className="text-sm font-medium text-destructive">{error}</p>
             )}
-            <div className="flex items-center justify-end">
-                <Button variant="link" size="sm" className="px-0" asChild>
-                    <Link href="#">Forgot password?</Link>
-                </Button>
-            </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
             </Button>

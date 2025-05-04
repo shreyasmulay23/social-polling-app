@@ -5,12 +5,24 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {toast} from '@/hooks/use-toast'
 import {Plus, Trash} from 'lucide-react'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import {API_ROUTES} from "@/utils/apiRoutes";
+import axios from "axios";
+import {useAuth} from "@/hooks/use-auth";
+import {useRouter} from "next/navigation";
 
 export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
+    const {user, loading} = useAuth()
+    const router = useRouter()
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login')
+        }
+    }, [user, loading, router])
 
     // Add an option (limit to 4)
     const addOption = () => {
@@ -34,31 +46,14 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
+        if (!user) return
         e.preventDefault()
         setIsSubmitting(true)
 
         try {
-            // Call the API to create poll and options
-            const response = await fetch('/api/poll', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question,
-                    options,
-                }),
-            });
+            const {data} = await axios.post(API_ROUTES.POLLS.CREATE_POLL, {userId: user.id, question,
+                options})
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error creating poll:', errorData.message);
-                alert(`Failed to create poll: ${errorData.message}`);
-                setIsSubmitting(false);
-                return;
-            }
-
-            const data = await response.json();
             const pollId = data.pollId;
             console.log(pollId);
             toast({
@@ -68,8 +63,12 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
             setTimeout(() => window.location.reload(), 200);
             onSuccess();
         } catch (err) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'An unexpected error occurred.',
+            })
             console.error('Unexpected error:', err);
-            alert('An unexpected error occurred');
         } finally {
             setIsSubmitting(false);
         }

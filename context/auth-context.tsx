@@ -4,6 +4,8 @@ import {createContext, useContext, useEffect, useState} from 'react'
 import {useRouter} from 'next/navigation'
 import {User} from '@supabase/supabase-js'
 import {supabase} from "@/lib/supabase/client";
+import Cookies from 'js-cookie'
+import {toast} from "@/hooks/use-toast";
 
 type AuthContextType = {
     user: User | null,
@@ -63,6 +65,14 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
 
     const signOut = async () => {
         await supabase.auth.signOut()
+        // Remove the session cookie
+        Cookies.remove('supabase_access_token')
+        Cookies.remove('supabase_refresh_token')
+        toast({
+            title: 'Logged out successfully',
+            description: 'Successfully logged out.',
+        })
+        // Optionally redirect the user to the login page
         router.push('/login')
     }
 

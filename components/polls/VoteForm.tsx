@@ -5,6 +5,10 @@ import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {Label} from '@/components/ui/label'
 import {Button} from '@/components/ui/button'
 import {toast} from '@/hooks/use-toast'
+import {API_ROUTES} from "@/utils/apiRoutes";
+import axios from "axios";
+import {useAuth} from "@/hooks/use-auth";
+import {useRouter} from "next/navigation";
 
 interface Option {
     id: string
@@ -26,8 +30,16 @@ export function VoteForm({
     const [selectedOption, setSelectedOption] = useState<string>('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [totalVotes, setTotalVotes] = useState<number>(0)
+    const {user, loading} = useAuth()
+    const router = useRouter()
 
     const hasVoted = Boolean(selectedOptionId)
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login')
+        }
+    }, [user, loading, router])
 
     useEffect(() => {
         if (selectedOptionId) setSelectedOption(selectedOptionId)
@@ -37,12 +49,13 @@ export function VoteForm({
     }, [options, selectedOptionId])
 
     const handleSubmit = async (e: React.FormEvent) => {
+        if (!user) return
         e.preventDefault()
         if (!selectedOption) return
         setIsSubmitting(true)
 
         try {
-            const response = await fetch('/api/vote', {
+            /*const response = await fetch('/api/vote', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -55,13 +68,21 @@ export function VoteForm({
 
             if (response.status !== 200) {
                 throw new Error(result.error || 'Vote submission failed')
-            }
+            }*/
 
-            toast({
-                title: 'Vote submitted!',
-                description: 'Your vote has been recorded.',
+            const {data} = await axios.post(API_ROUTES.POLLS.SUBMIT_VOTE_FOR_POLL, {
+                userId: user.id,
+                pollId,
+                selectedOption,
             })
-            onSuccessAction('CLOSE_DIALOG');
+
+            if (data.success) {
+                toast({
+                    title: 'Vote submitted!',
+                    description: 'Your vote has been recorded.',
+                })
+                onSuccessAction('CLOSE_DIALOG');
+            }
         } catch (error) {
             if (error instanceof Error) {
                 toast({

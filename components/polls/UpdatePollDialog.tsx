@@ -8,6 +8,8 @@ import {Pencil, Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
 import type {PollWithVotes} from '@/types'
 import {useToast} from "@/hooks/use-toast"
+import {API_ROUTES} from "@/utils/apiRoutes";
+import axios from "axios";
 
 export function UpdatePollDialog({
                                      poll,
@@ -43,35 +45,28 @@ export function UpdatePollDialog({
         setIsSubmitting(true)
 
         try {
-            const res = await fetch(`/api/poll/${poll.id}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    question,
-                    options,
-                    originalOptions: poll.options,
-                    hasVotes
-                }),
+            const {data} = await axios.put(API_ROUTES.POLLS.UPDATE_POLL(poll.id), {
+                question,
+                options,
+                originalOptions: poll.options,
+                hasVotes
             })
-
-            const data = await res.json()
-
-            if (!res.ok) {
-                alert(data.error || 'Failed to update poll')
-                console.error(data)
-                return
+            if (data.success) {
+                toast({
+                    title: "Success 🎉",
+                    description: "Poll updated successfully.",
+                })
+                onSuccess()
+                // Close the dialog after the update is successful
+                setIsDialogOpen(false)
             }
-            toast({
-                title: "Success 🎉",
-                description: "Poll updated successfully.",
-            })
-            onSuccess()
-            // Close the dialog after the update is successful
-            setIsDialogOpen(false)
-
         } catch (err) {
-            console.error('Unexpected error updating poll:', err)
-            alert('Something went wrong!')
+            console.log('Got error', err);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'An unexpected error occurred.',
+            })
         } finally {
             setIsSubmitting(false)
         }
