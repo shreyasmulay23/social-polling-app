@@ -7,7 +7,7 @@ import {Label} from '@/components/ui/label'
 import {Pencil, Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
 import type {PollWithVotes} from '@/types'
-import {toast, useToast} from "@/hooks/use-toast"
+import {useToast} from "@/hooks/use-toast"
 import {API_ROUTES} from "@/utils/apiRoutes";
 import axios from "axios";
 
@@ -61,6 +61,7 @@ export function UpdatePollDialog({
                 setIsDialogOpen(false)
             }
         } catch (err) {
+            console.log('Got error', err);
             toast({
                 variant: 'destructive',
                 title: 'Error',

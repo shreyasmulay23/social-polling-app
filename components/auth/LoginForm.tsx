@@ -1,10 +1,8 @@
 'use client'
 
 import {useState} from 'react'
-import {useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import Link from 'next/link'
 import axios from "axios";
 import Cookies from 'js-cookie'
 import {supabase} from "@/lib/supabase/client";
@@ -12,7 +10,6 @@ import {API_ROUTES} from "@/utils/apiRoutes";
 import {toast} from "@/hooks/use-toast";
 
 export function LoginForm() {
-    const router = useRouter()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
