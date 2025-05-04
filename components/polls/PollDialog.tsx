@@ -17,16 +17,14 @@ export default function PollDialog({poll, open, onCloseAction}: PollDialogProps)
             <DialogContent className="max-w-2xl">
                 <h2 className="text-xl font-bold mb-4">{poll.question}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Voting Section */}
                     <div>
                         <h4 className="font-semibold mb-2">Options</h4>
-                        {/* Display the VoteForm */}
                         {!poll.user_has_voted ? (
-                            <VoteForm pollId={poll.id} options={poll.options} selectedOptionId={poll.user_option_id}/>
+                            <VoteForm pollId={poll.id} options={poll.options} selectedOptionId={poll.user_option_id} onSuccessAction={onCloseAction}/>
                         ) : (
                             <>
                                 <VoteForm pollId={poll.id} options={poll.options}
-                                          selectedOptionId={poll.user_option_id}/>
+                                          selectedOptionId={poll.user_option_id} onSuccessAction={onCloseAction}/>
                             </>
                         )}
                     </div>

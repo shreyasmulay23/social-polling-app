@@ -1,12 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Plus, Trash } from 'lucide-react'
-import { useState } from 'react'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
+import { toast } from '@/hooks/use-toast'
+import {Plus, Trash} from 'lucide-react'
+import {useState} from 'react'
 
-export function CreatePollForm({ onSuccess }: { onSuccess: () => void }) {
+export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,6 +61,10 @@ export function CreatePollForm({ onSuccess }: { onSuccess: () => void }) {
             const data = await response.json();
             const pollId = data.pollId;
             console.log(pollId);
+            toast({
+                title: 'Poll created successfully',
+                description: 'The poll has been created.',
+            })
             onSuccess();
         } catch (err) {
             console.error('Unexpected error:', err);
@@ -101,7 +106,7 @@ export function CreatePollForm({ onSuccess }: { onSuccess: () => void }) {
                                 size="icon"
                                 onClick={() => removeOption(index)}
                             >
-                                <Trash className="h-4 w-4" />
+                                <Trash className="h-4 w-4"/>
                             </Button>
                         )}
                     </div>
@@ -114,7 +119,7 @@ export function CreatePollForm({ onSuccess }: { onSuccess: () => void }) {
                     onClick={addOption}
                     disabled={options.length >= 4}  // Disable "Add Option" when there are 4 options
                 >
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus className="mr-2 h-4 w-4"/>
                     Add Option
                 </Button>
             </div>

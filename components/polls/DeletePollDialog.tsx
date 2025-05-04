@@ -4,7 +4,7 @@ import {Dialog, DialogContent, DialogTrigger} from '@/components/ui/dialog'
 import {Button} from '@/components/ui/button'
 import {Trash} from 'lucide-react'
 import {useState} from 'react'
-import {useToast} from "@/hooks/use-toast";
+import {useToast} from "@/hooks/use-toast"
 
 interface DeletePollDialogProps {
     pollId: string
@@ -14,11 +14,12 @@ interface DeletePollDialogProps {
 const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
     const {toast} = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isDialogOpen, setIsDialogOpen] = useState(false)  // State to control dialog visibility
 
     const handleDeletePoll = async () => {
         setIsSubmitting(true)
         try {
-            const res = await fetch(`/api/poll/${pollId}`, {
+            const res = await fetch(`/api/poll/${pollId}/delete`, {
                 method: 'DELETE',
             })
             if (!res.ok) {
@@ -30,8 +31,12 @@ const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
                 description: 'The poll has been deleted.',
             })
             onDeleteSuccess()
+
+            setIsDialogOpen(false)
+
         } catch (error) {
             toast({
+                variant: "destructive",
                 title: 'Error',
                 description: error instanceof Error ? error.message : 'Something went wrong',
             })
@@ -41,12 +46,15 @@ const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
     }
 
     return (
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
                 <Button
                     className="w-4 h-4 text-red-500 cursor-pointer"
                     size="icon"
-                    onClick={e => e.stopPropagation()}
+                    onClick={e => {
+                        e.stopPropagation()
+                        setIsDialogOpen(true)
+                    }}
                 >
                     <Trash className="h-4 w-4"/>
                 </Button>
@@ -61,7 +69,7 @@ const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
                         type="button"
                         variant="outline"
                         className="w-full"
-                        onClick={() => setIsSubmitting(false)} // Close dialog if user cancels
+                        onClick={() => setIsDialogOpen(false)} // Close dialog if user cancels
                     >
                         Cancel
                     </Button>

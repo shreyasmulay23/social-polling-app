@@ -7,7 +7,7 @@ import {Label} from '@/components/ui/label'
 import {Pencil, Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
 import type {PollWithVotes} from '@/types'
-import {useToast} from "@/hooks/use-toast";
+import {useToast} from "@/hooks/use-toast"
 
 export function UpdatePollDialog({
                                      poll,
@@ -20,7 +20,8 @@ export function UpdatePollDialog({
     const [options, setOptions] = useState(poll.options.map(o => o.text))
     const hasVotes = poll.total_votes > 0
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const { toast } = useToast()
+    const [isDialogOpen, setIsDialogOpen] = useState(false)  // State to control dialog visibility
+    const {toast} = useToast()
 
     const updateOption = (index: number, value: string) => {
         const newOptions = [...options]
@@ -65,6 +66,9 @@ export function UpdatePollDialog({
                 description: "Poll updated successfully.",
             })
             onSuccess()
+            // Close the dialog after the update is successful
+            setIsDialogOpen(false)
+
         } catch (err) {
             console.error('Unexpected error updating poll:', err)
             alert('Something went wrong!')
@@ -74,12 +78,15 @@ export function UpdatePollDialog({
     }
 
     return (
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
                 <Button
                     className="w-4 h-4 text-white cursor-pointer"
                     size="icon"
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        setIsDialogOpen(true)  // Open the dialog when the button is clicked
+                    }}
                 >
                     <Pencil className="h-4 w-4"/>
                 </Button>
@@ -91,7 +98,7 @@ export function UpdatePollDialog({
                         <Input
                             id="question"
                             value={question}
-                            onChange={e => setQuestion(e.target.value)}
+                            onChange={(e) => setQuestion(e.target.value)}
                             required
                         />
                     </div>
@@ -102,7 +109,7 @@ export function UpdatePollDialog({
                             <div key={index} className="flex items-center gap-2">
                                 <Input
                                     value={option}
-                                    onChange={e => updateOption(index, e.target.value)}
+                                    onChange={(e) => updateOption(index, e.target.value)}
                                     required
                                 />
                                 {!hasVotes && options.length > 2 && (

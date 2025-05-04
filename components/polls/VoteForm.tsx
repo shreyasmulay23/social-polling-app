@@ -16,10 +16,12 @@ export function VoteForm({
                              pollId,
                              options,
                              selectedOptionId,
+                             onSuccessAction
                          }: {
-    pollId: string
-    options: Option[]
-    selectedOptionId?: string | null
+    pollId: string,
+    options: Option[],
+    selectedOptionId?: string | null,
+    onSuccessAction: (arg: string) => void
 }) {
     const [selectedOption, setSelectedOption] = useState<string>('')
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,8 +61,7 @@ export function VoteForm({
                 title: 'Vote submitted!',
                 description: 'Your vote has been recorded.',
             })
-
-            window.location.reload() // Refresh to reflect new vote count
+            onSuccessAction('CLOSE_DIALOG');
         } catch (error) {
             if (error instanceof Error) {
                 toast({

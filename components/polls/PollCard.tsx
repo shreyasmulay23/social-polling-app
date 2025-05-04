@@ -10,7 +10,7 @@ import DeletePollDialog from "@/components/polls/DeletePollDialog";
 
 type PollCardProps = {
     poll: PollWithVotes;
-    onClickAction: (poll: PollWithVotes) => void;
+    onClickAction: (arg: PollWithVotes | string) => void;
 };
 
 export default function PollCard({poll, onClickAction}: PollCardProps) {
@@ -52,8 +52,8 @@ export default function PollCard({poll, onClickAction}: PollCardProps) {
                             strokeWidth={1.8}
                         />
                         {poll.user_id === user?.id && <>
-                            <UpdatePollDialog poll={poll} onSuccess={() => console.log('Modified..')}/>
-                            <DeletePollDialog pollId={poll.id} onDeleteSuccess={() => console.log('Deleted')}/>
+                            <UpdatePollDialog poll={poll} onSuccess={() => onClickAction('CLOSE_DIALOG')}/>
+                            <DeletePollDialog pollId={poll.id} onDeleteSuccess={() => onClickAction('CLOSE_DIALOG')}/>
                         </>}
                     </div>
 

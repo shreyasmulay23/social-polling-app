@@ -10,7 +10,7 @@ import {PollWithVotes, Vote} from "@/types";
 import PollCard from "@/components/polls/PollCard";
 import PollDialog from "@/components/polls/PollDialog";
 import {supabase} from "@/lib/supabase/client";
-import { RealtimeChannel } from '@supabase/supabase-js'
+import {RealtimeChannel} from '@supabase/supabase-js'
 
 
 export default function DashboardPage() {
@@ -139,15 +139,23 @@ export default function DashboardPage() {
                 <section>
                     <div className="flex items-center space-x-2 mb-6">
                         <div className="relative flex items-center justify-center w-4 h-4">
-                            <span className="absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                            <span
+                                className="absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75 animate-ping"></span>
                             <span className="relative inline-flex h-3 w-3 rounded-full bg-green-600"></span>
                         </div>
                         <h2 className="text-xl font-semibold">Live Polls</h2>
                     </div>
                     {dataLoaded ? (
                         polls.length > 0 ? (
-                            <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'}>{polls.map((poll, index) => (
-                                <PollCard key={index} poll={poll} onClickAction={setSelectedPoll}/>
+                            <div
+                                className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'}>{polls.map((poll, index) => (
+                                <PollCard key={index} poll={poll} onClickAction={(arg: PollWithVotes | string) => {
+                                    if (typeof arg === 'string' && arg === 'CLOSE_DIALOG') {
+                                        setSelectedPoll(null);
+                                    } else if (typeof arg !== 'string') {
+                                        setSelectedPoll(arg);
+                                    }
+                                }}/>
                             ))}
                                 {selectedPoll && (
                                     <PollDialog
