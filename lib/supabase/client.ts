@@ -9,7 +9,7 @@ export const supabase = createClientComponentClient<Database>({
     options: {
         realtime: {
             params: {
-                eventsPerSecond: 10,
+                eventsPerSecond: 5,
             },
         },
     },

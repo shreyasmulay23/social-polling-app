@@ -45,8 +45,6 @@ const HeroSection = () => {
                     fun.</p>
                 <div className={'flex justify-center space-x-4'}>
                     <Link href={!!user ? '/dashboard' : '/login'}> <Button className={'px-8'} size="lg">Get Started</Button></Link>
-                    <Link href={'/watch-demo'}> <Button variant={'outline'} className={'px-8'} size="lg">Watch
-                        Demo</Button></Link>
                 </div>
                 <div className={'hero-image-wrapper'}>
                     <div ref={imageRef} className={'hero-image'}>

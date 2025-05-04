@@ -4,6 +4,7 @@ import {useState} from 'react'
 import {useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
+import {toast} from "@/hooks/use-toast";
 
 export function SignupForm() {
     const router = useRouter()
@@ -33,6 +34,10 @@ export function SignupForm() {
             }
 
             // Redirect to dashboard immediately after successful signup
+            toast({
+                title: 'Registered Successfully',
+                description: 'Kindly login.',
+            })
             router.push('/dashboard')
         } catch (err) {
             if (err instanceof Error) {

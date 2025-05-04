@@ -42,81 +42,101 @@ export default function DashboardPage() {
     useEffect(() => {
         if (!user) return;
 
-        let channel: RealtimeChannel;
+        let votesChannel: RealtimeChannel;
+        let pollsChannel: RealtimeChannel;
 
         const setupSubscription = async () => {
-            channel = supabase
+            votesChannel = supabase
                 .channel('poll_votes')
                 .on(
                     'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'votes'
-                    },
+                    {event: 'INSERT', schema: 'public', table: 'votes'},
                     (payload) => {
-                        updatePollsWithNewVote(payload.new as Vote);
+                        mergeUpdatedPoll({newVote: payload.new as Vote});
                     }
                 )
                 .subscribe()
+
+            // Subscribe to polls
+            pollsChannel = supabase
+                .channel('poll_events')
+                .on(
+                    'postgres_changes',
+                    {event: 'INSERT', schema: 'public', table: 'polls'},
+                    payload => {
+                        mergeUpdatedPoll({updatedPoll: payload.new as PollWithVotes});
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {event: 'UPDATE', schema: 'public', table: 'polls'},
+                    payload => {
+                        mergeUpdatedPoll({updatedPoll: payload.new as PollWithVotes});
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {event: 'DELETE', schema: 'public', table: 'polls'},
+                    payload => {
+                        removeDeletedPoll(payload.old.id);
+                    }
+                )
+                .subscribe();
         };
 
         setupSubscription();
 
         return () => {
-            if (channel) {
-                supabase.removeChannel(channel)
-            }
+            if (votesChannel) supabase.removeChannel(votesChannel);
+            if (pollsChannel) supabase.removeChannel(pollsChannel);
         };
     }, [user]);
 
-    const updatePollsWithNewVote = (newVote: Vote) => {
-        console.log('Updated.....')
+    type MergeUpdatedPollArgs = {
+        updatedPoll?: PollWithVotes;
+        newVote?: Vote;
+    };
+
+
+    const mergeUpdatedPoll = ({updatedPoll, newVote}: MergeUpdatedPollArgs) => {
         setPolls(prevPolls =>
             prevPolls.map(poll => {
-                if (poll.id !== newVote.poll_id) return poll;
+                if (updatedPoll && poll.id === updatedPoll.id) {
+                    return {
+                        ...poll,
+                        ...updatedPoll,
+                        options: updatedPoll.options ?? poll.options,
+                        votes: updatedPoll.votes ?? poll.votes,
+                        total_votes: updatedPoll.total_votes ?? poll.total_votes,
+                    };
+                }
 
-                return {
-                    ...poll,
-                    votes: [...poll.votes, newVote],
-                    total_votes: poll.total_votes + 1,
-                    options: poll.options.map(option => {
-                        if (option.id !== newVote.option_id) return option;
-                        return {
-                            ...option,
-                            vote_count: option.vote_count + 1,
-                            percentage: Math.round(
-                                ((option.vote_count + 1) / (poll.total_votes + 1)) * 100
-                            )
-                        };
-                    })
-                };
+                if (newVote && poll.id === newVote.poll_id) {
+                    return {
+                        ...poll,
+                        votes: [...poll.votes, newVote],
+                        total_votes: poll.total_votes + 1,
+                        options: poll.options.map(option => {
+                            if (option.id !== newVote.option_id) return option;
+                            return {
+                                ...option,
+                                vote_count: option.vote_count + 1,
+                                percentage: Math.round(
+                                    ((option.vote_count + 1) / (poll.total_votes + 1)) * 100
+                                )
+                            };
+                        })
+                    };
+                }
+
+                return poll;
             })
         );
     };
 
-    /*const transformPolls = (
-        polls: (Poll & { votes: Vote[]; options: OptionWithStats[] })[],
-        userId: string
-    ): PollWithVotes[] => {
-        return polls.map((poll) => {
-            const total_votes = poll.votes.length
-            const user_has_voted = poll.votes.some((v) => v.user_id === userId)
-
-            const options = poll.options.map((option) => {
-                const vote_count = poll.votes.filter((v) => v.option_id === option.id).length
-                const percentage = total_votes > 0 ? Math.round((vote_count / total_votes) * 100) : 0
-                return {...option, vote_count, percentage}
-            })
-
-            return {
-                ...poll,
-                total_votes,
-                user_has_voted,
-                options,
-            }
-        })
-    }*/
+    const removeDeletedPoll = (deletedPollId: string) => {
+        setPolls(prevPolls => prevPolls.filter(p => p.id !== deletedPollId));
+    };
 
     if (loading) {
         return (
@@ -130,14 +150,16 @@ export default function DashboardPage() {
 
     return (
         <div className="container mx-auto py-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold">Welcome, {user.email}</h1>
+            <div
+                className="flex justify-center sm:justify-between items-center mb-8 flex-wrap gap-5 text-center sm:text-left">
+                <h1 className="text-xl sm:text-3xl font-bold truncate max-w-[320px] sm:max-w-full sm:whitespace-normal"
+                    title={`Welcome, ${user.email}`}>Welcome, {user.email}</h1>
                 <CreatePollButton/>
             </div>
 
             <div className="grid gap-8">
                 <section>
-                    <div className="flex items-center space-x-2 mb-6">
+                    {polls.length > 0 && <div className="flex items-center space-x-2 mb-6">
                         <div className="relative flex items-center justify-center w-4 h-4">
                             <span
                                 className="absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75 animate-ping"></span>
@@ -145,6 +167,8 @@ export default function DashboardPage() {
                         </div>
                         <h2 className="text-xl font-semibold">Live Polls</h2>
                     </div>
+                    }
+
                     {dataLoaded ? (
                         polls.length > 0 ? (
                             <div

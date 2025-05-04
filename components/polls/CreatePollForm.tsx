@@ -3,7 +3,7 @@
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
-import { toast } from '@/hooks/use-toast'
+import {toast} from '@/hooks/use-toast'
 import {Plus, Trash} from 'lucide-react'
 import {useState} from 'react'
 
@@ -65,6 +65,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
                 title: 'Poll created successfully',
                 description: 'The poll has been created.',
             })
+            setTimeout(() => window.location.reload(), 200);
             onSuccess();
         } catch (err) {
             console.error('Unexpected error:', err);
