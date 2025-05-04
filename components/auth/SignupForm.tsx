@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {toast} from "@/hooks/use-toast";
+import {API_ROUTES} from "@/utils/apiRoutes";
 
 export function SignupForm() {
     const router = useRouter()
@@ -19,7 +20,7 @@ export function SignupForm() {
         setError(null)
 
         try {
-            const response = await fetch('/api/auth/signup', {
+            const response = await fetch(API_ROUTES.AUTH.SIGNUP, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

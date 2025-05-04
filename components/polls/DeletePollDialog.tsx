@@ -3,8 +3,12 @@
 import {Dialog, DialogContent, DialogTrigger} from '@/components/ui/dialog'
 import {Button} from '@/components/ui/button'
 import {Trash} from 'lucide-react'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {useToast} from "@/hooks/use-toast"
+import axios from 'axios'
+import {API_ROUTES} from "@/utils/apiRoutes";
+import {useAuth} from "@/hooks/use-auth";
+import {useRouter} from "next/navigation";
 
 interface DeletePollDialogProps {
     pollId: string
@@ -12,28 +16,34 @@ interface DeletePollDialogProps {
 }
 
 const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
+    const {user, loading} = useAuth()
+    const router = useRouter()
     const {toast} = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)  // State to control dialog visibility
 
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login')
+        }
+    }, [user, loading, router])
+
     const handleDeletePoll = async () => {
+        if (!user) return
         setIsSubmitting(true)
         try {
-            const res = await fetch(`/api/poll/${pollId}/delete`, {
-                method: 'DELETE',
-            })
-            if (!res.ok) {
-                throw new Error('Failed to delete the poll')
+            const {data} = await axios.post(API_ROUTES.POLLS.DELETE_POLL(pollId), {
+                userId: user.id
+            });
+            if (data.success) {
+                toast({
+                    title: 'Poll deleted successfully',
+                    description: 'The poll has been deleted.',
+                })
+                onDeleteSuccess()
+
+                setIsDialogOpen(false)
             }
-
-            toast({
-                title: 'Poll deleted successfully',
-                description: 'The poll has been deleted.',
-            })
-            onDeleteSuccess()
-
-            setIsDialogOpen(false)
-
         } catch (error) {
             toast({
                 variant: "destructive",

@@ -11,6 +11,8 @@ import PollCard from "@/components/polls/PollCard";
 import PollDialog from "@/components/polls/PollDialog";
 import {supabase} from "@/lib/supabase/client";
 import {RealtimeChannel} from '@supabase/supabase-js'
+import axios from 'axios'
+import {API_ROUTES} from "@/utils/apiRoutes";
 
 
 export default function DashboardPage() {
@@ -29,9 +31,7 @@ export default function DashboardPage() {
     useEffect(() => {
         if (!user) return
         const fetchAllPolls = async () => {
-            const res = await fetch('/api/polls')
-            if (!res.ok) return console.error('Failed to fetch dashboard data')
-            const data = await res.json()
+            const {data} = await axios.get(API_ROUTES.POLLS.GET_ALL_BY_USER_ID(user.id))
             setPolls(data)
             setDataLoaded(true)
         }
