@@ -13,7 +13,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Open in VS Code](https://img.shields.io/badge/Open%20in-VSCode-007ACC?logo=visualstudiocode&style=flat-square)](https://github.dev/shreyasmulay23/social-polling-app)
 
-
 Create, vote, and engage with real-time polls. Built with **Next.js**, **Supabase**, and **Tailwind CSS**. Features
 real-time updates, authentication, and interactive UI.
 
@@ -96,6 +95,7 @@ npm run dev
 App should be running at http://localhost:3000.
 
 ---
+
 ## 📦 Folder Structure
 
 ```
@@ -109,7 +109,9 @@ App should be running at http://localhost:3000.
   └── (supabase -- client.ts, server.ts, utils.ts)
 
 ```
+
 ---
+
 ## 📦 Deployment
 
 This app is deployed using Vercel for the frontend and Render for the backend Node.js APIs.
@@ -131,7 +133,10 @@ This app is deployed using Vercel for the frontend and Render for the backend No
 - Pagination or Infinite Scroll
 - Sharing Polls via Link or QR
 - Unit tests using Jest and React Testing Library
+- As per current development, the poll result is shown inside a dialog box. In the future, I can introduce a dedicated
+  Poll Dashboard page.
 ---
+
 ### 🐞 Known Issues
 
 - 🕒 **Voting feedback is delayed for the user who casts the vote**. Other users see the updated vote count instantly,
@@ -144,11 +149,14 @@ This app is deployed using Vercel for the frontend and Render for the backend No
 
 - Inspired by real-time voting apps and community feedback tools
 - Thanks to Supabase and Vercel for the amazing developer tools
+
 ---
+
 ## 📄 License
 
 MIT License © Shreyas Mulay
 
 - Pull requests are welcome! Please open an issue first to discuss changes.
 - Let me know if you'd like to auto-generate screenshots from your app or if you want a separate `CONTRIBUTING.md` too?
+
 ---
