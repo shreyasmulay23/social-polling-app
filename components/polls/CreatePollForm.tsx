@@ -144,7 +144,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
                     disabled={options.length >= 4}  // Disable "Add Option" when there are 4 options
                 >
                     <Plus className="mr-2 h-4 w-4"/>
-                    Add Option
+                    Add Option {options.length >= 4 ? '(Maximum reached)' : ''}
                 </Button>
             </div>
 
