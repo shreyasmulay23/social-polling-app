@@ -72,8 +72,7 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
             title: 'Logged out successfully',
             description: 'Successfully logged out.',
         })
-        // Optionally redirect the user to the login page
-        router.push('/login')
+        router.push('/')
     }
 
     return (

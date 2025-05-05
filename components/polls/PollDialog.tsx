@@ -1,7 +1,7 @@
 'use client';
 
 import {PollWithVotes} from '@/types';
-import {Dialog, DialogContent} from '@/components/ui/dialog';
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from '@/components/ui/dialog';
 import {Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import {VoteForm} from './VoteForm';
 
@@ -14,7 +14,13 @@ type PollDialogProps = {
 export default function PollDialog({poll, open, onCloseAction}: PollDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onCloseAction}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6">
+                <DialogHeader>
+                    <DialogTitle>Poll</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                    Select the option that best represents your preference. You can only vote once.
+                </DialogDescription>
                 <h2 className="text-xl font-bold mb-4">{poll.question}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>

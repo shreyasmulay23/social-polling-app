@@ -29,7 +29,7 @@ export default function PollCard({poll, onClickAction}: PollCardProps) {
                     </span>
                 )}
                 {/* Stats */}
-                <div className="flex gap-5 items-center justify-between text-sm text-slate-300 mt-2">
+                <div className="flex gap-5 items-center justify-between text-sm text-slate-300 mt-2 flex-wrap">
                     <div className="flex items-center gap-1">
                         <CalendarIcon size={16}/>
                         <span>{fromNow(poll.created_at)}</span>

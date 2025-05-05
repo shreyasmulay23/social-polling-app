@@ -1,6 +1,6 @@
 'use client'
 
-import {Dialog, DialogContent, DialogTrigger} from '@/components/ui/dialog'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
@@ -87,6 +87,9 @@ export function UpdatePollDialog({
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Modify Poll</DialogTitle>
+                </DialogHeader>
                 <form onSubmit={handleUpdate} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="question">Title</Label>

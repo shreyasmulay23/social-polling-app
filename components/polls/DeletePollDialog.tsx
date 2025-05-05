@@ -1,6 +1,6 @@
 'use client'
 
-import {Dialog, DialogContent, DialogTrigger} from '@/components/ui/dialog'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog'
 import {Button} from '@/components/ui/button'
 import {Trash} from 'lucide-react'
 import {useEffect, useState} from 'react'
@@ -70,6 +70,9 @@ const DeletePollDialog = ({pollId, onDeleteSuccess}: DeletePollDialogProps) => {
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Delete Poll</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Are you sure you want to delete this poll?</h3>
                     <p className="text-sm text-gray-500">This action cannot be undone.</p>
