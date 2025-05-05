@@ -14,7 +14,7 @@ export default function Home() {
     if (isLoading) return null // or loading spinner
 
     return (
-        <div className={'mt-40'}>
+        <div className={'mt-[100px]'}>
             <HeroSection/>
             <section className={'py-20 bg-blue-50'}>
                 <div className={'container mx-auto px-4'}>

@@ -149,7 +149,7 @@ export default function DashboardPage() {
     if (!user) return null
 
     return (
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 mt-[100px]">
             <div
                 className="flex justify-center sm:justify-between items-center mb-8 flex-wrap gap-5 text-center sm:text-left">
                 <h1 className="text-xl sm:text-3xl font-bold truncate max-w-[320px] sm:max-w-full sm:whitespace-normal"
