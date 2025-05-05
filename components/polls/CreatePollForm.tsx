@@ -17,7 +17,6 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const remainingChars = 150 - question.length;
 
     useEffect(() => {
         if (!loading && !user) {
