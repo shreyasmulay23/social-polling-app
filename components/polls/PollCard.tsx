@@ -2,7 +2,7 @@
 
 import {PollWithVotes} from '@/types';
 import {Card} from '@/components/ui/card';
-import {CalendarIcon, CheckCircle2Icon, CircleDashedIcon, EyeIcon} from 'lucide-react';
+import {CalendarIcon, CheckCircle2Icon, CircleDashedIcon, CircleUser, EyeIcon} from 'lucide-react';
 import {fromNow} from "@/utils/fromNow";
 import {useAuth} from "@/context/auth-context";
 import {UpdatePollDialog} from "@/components/polls/UpdatePollDialog";
@@ -24,8 +24,8 @@ export default function PollCard({poll, onClickAction}: PollCardProps) {
                 <h3 className="text-lg font-semibold text-white">{poll.question}</h3>
                 {poll.user_id === user?.id && (
                     <span
-                        className="text-xs font-medium text-white bg-blue-600 px-2.5 py-0.5 rounded-sm absolute right-3 top-3 shadow-sm">
-                        My Poll
+                        className="text-xs font-medium text-blue-600 px-2.5 py-0.5 rounded-sm absolute right-3 top-3 shadow-sm">
+                        <CircleUser size={16}/>
                     </span>
                 )}
                 {/* Stats */}
