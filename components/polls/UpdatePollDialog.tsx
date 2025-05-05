@@ -114,7 +114,7 @@ export function UpdatePollDialog({
                     <div className="space-y-4">
                         <Label>Options  <p className={'font-light text-muted-foreground'}>(minimum 2, maximum 4)</p></Label>
                         {options.map((option, index) => {
-                            const remainingChars = 100 - option.length;
+                            const remainingChars = 10 - option.length;
                             return (
                                 <div key={index} className="space-y-1">
                                     <div className="flex items-center gap-2">
@@ -123,12 +123,12 @@ export function UpdatePollDialog({
                                                 value={option}
                                                 onChange={(e) => updateOption(index, e.target.value)}
                                                 required={index < 2} // Only first two options are required
-                                                maxLength={100}
+                                                maxLength={10}
                                                 placeholder={`Option ${index + 1}`}
                                                 className="pr-12"
                                             />
                                             <span className={`absolute right-3 top-2 text-xs ${
-                                                remainingChars < 10 ? 'text-destructive' : 'text-muted-foreground'
+                                                remainingChars < 5 ? 'text-destructive' : 'text-muted-foreground'
                                             }`}>
                                 {remainingChars}
                             </span>
