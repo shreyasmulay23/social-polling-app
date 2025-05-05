@@ -3,10 +3,16 @@
 import {Button} from '@/components/ui/button'
 import {Plus} from 'lucide-react'
 import {useRouter} from 'next/navigation'
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from '@/components/ui/dialog'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from '@/components/ui/dialog'
 import {CreatePollForm} from './CreatePollForm'
 import {useState} from "react";
-import {DialogDescription} from "@radix-ui/react-dialog";
 
 export function CreatePollButton() {
     const router = useRouter()

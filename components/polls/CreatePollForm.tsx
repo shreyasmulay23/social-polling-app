@@ -17,6 +17,7 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
     const [question, setQuestion] = useState('')
     const [options, setOptions] = useState(['', ''])
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const remainingChars = 150 - question.length;
 
     useEffect(() => {
         if (!loading && !user) {
@@ -51,8 +52,10 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
         setIsSubmitting(true)
 
         try {
-            const {data} = await axios.post(API_ROUTES.POLLS.CREATE_POLL, {userId: user.id, question,
-                options})
+            const {data} = await axios.post(API_ROUTES.POLLS.CREATE_POLL, {
+                userId: user.id, question,
+                options
+            })
 
             const pollId = data.pollId;
             console.log(pollId);
@@ -80,37 +83,58 @@ export function CreatePollForm({onSuccess}: { onSuccess: () => void }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="question">Title</Label>
-                <Input
-                    id="question"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    required
-                    placeholder="Enter title"
-                />
+                <Label htmlFor="question">Title <p className={'font-light text-muted-foreground'}>(Max 150
+                    characters)</p></Label>
+                <div className="relative">
+                    <Input
+                        id="question"
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        required
+                        maxLength={150}
+                        className="pr-16"
+                    />
+                    <span className={`absolute right-3 top-2 text-xs ${
+                        (150 - question.length) < 20 ? 'text-destructive' : 'text-muted-foreground'
+                    }`}>
+                {150 - question.length}
+            </span>
+                </div>
             </div>
             <div className="space-y-4">
-                <Label>Options (minimum 2, maximum 4)</Label>
-                {options.map((option, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                        <Input
-                            value={option}
-                            onChange={(e) => updateOption(index, e.target.value)}
-                            required={index < 2}  // Ensure that the first 2 options are required
-                            placeholder={`Option ${index + 1}`}
-                        />
-                        {options.length > 2 && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeOption(index)}
-                            >
-                                <Trash className="h-4 w-4"/>
-                            </Button>
-                        )}
-                    </div>
-                ))}
+                <Label>Options <p className={'font-light text-muted-foreground'}>(minimum 2, maximum 4)</p></Label>
+                {options.map((option, index) => {
+                    const remainingChars = 10 - option.length;
+                    return (
+                        <div key={index} className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <Input
+                                    value={option}
+                                    onChange={(e) => updateOption(index, e.target.value)}
+                                    required={index < 2}
+                                    maxLength={10}
+                                    placeholder={`Option ${index + 1}`}
+                                    className="pr-16" // Make space for counter
+                                />
+                                <span className={`absolute right-3 top-2 text-xs ${
+                                    remainingChars < 5 ? 'text-destructive' : 'text-muted-foreground'
+                                }`}>
+                    {remainingChars}
+                </span>
+                            </div>
+                            {options.length > 2 && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeOption(index)}
+                                >
+                                    <Trash className="h-4 w-4"/>
+                                </Button>
+                            )}
+                        </div>
+                    );
+                })}
 
                 <Button
                     type="button"
